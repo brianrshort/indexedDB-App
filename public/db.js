@@ -14,4 +14,15 @@ let db;
       } });
   })();
   
+  // Function only operates while offline. Saves new transactions offline until the browser goes back online
+  async function saveOfflineRecord( newTransaction ) {
+    const trans = db.transaction("pending", "readwrite");
+    const pendingTable = trans.objectStore("pending");
+    pendingTable.add( newTransaction );
+  
+    await trans.done;
+  
+    console.log(`Saving new record offline: ` + JSON.stringify(newTransaction));
+  }
+  
   
