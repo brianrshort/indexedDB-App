@@ -1,3 +1,5 @@
+import saveOfflineRecord from './db';
+
 let transactions = [];
 let myChart;
 
@@ -78,7 +80,7 @@ function populateChart() {
   });
 }
 
-function sendTransaction(isAdding) {
+function sendFormTransaction(action) {
   let nameEl = document.querySelector("#t-name");
   let amountEl = document.querySelector("#t-amount");
   let errorEl = document.querySelector(".form .error");
@@ -96,13 +98,9 @@ function sendTransaction(isAdding) {
   let transaction = {
     name: nameEl.value,
     value: amountEl.value,
+    value: Number( action == 'subtract-value' ? -amountEl.value : amountEl.value),
     date: new Date().toISOString()
   };
-
-  // if subtracting funds, convert amount to negative number
-  if (!isAdding) {
-    transaction.value *= -1;
-  }
 
   // add to beginning of current array of data
   transactions.unshift(transaction);
@@ -136,7 +134,7 @@ function sendTransaction(isAdding) {
   })
   .catch(err => {
     // fetch failed, so save in indexed db
-    saveRecord(transaction);
+    saveOfflineRecord(transaction);
 
     // clear form
     nameEl.value = "";
@@ -144,10 +142,12 @@ function sendTransaction(isAdding) {
   });
 }
 
-document.querySelector("#add-btn").onclick = function() {
-  sendTransaction(true);
+document.querySelector("#add-btn").onclick = function(event) {
+  event.preventDefault();
+  sendFormTransaction('add-value');
 };
 
-document.querySelector("#sub-btn").onclick = function() {
-  sendTransaction(false);
+document.querySelector("#sub-btn").onclick = function(event) {
+  event.preventDefault();
+  sendTransaction('subtract-value');
 };
